@@ -1,0 +1,66 @@
+{
+  "name": "typescript-starter",
+  "version": "0.0.0",
+  "description": "A template for typescript projects",
+  "main": "./lib/cjs/index.js",
+  "exports": {
+    ".": {
+      "import": "./lib/esm/index.js",
+      "require": "./lib/cjs/index.js"
+    }
+  },
+  "type": "module",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "lint": "pnpm eslint ./src/**",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
+    "prebuild": "pnpm rimraf lib",
+    "build": "pnpm build-esm && pnpm build-cjs",
+    "build-base": "tsc -p .",
+    "build-esm": "pnpm build-base --outDir lib/esm",
+    "build-cjs": "pnpm build-base --outDir lib/cjs --module commonjs && pnpm fix-cjs",
+    "fix-cjs": "node --loader ts-node/esm ./fix-cjs.ts",
+    "test-script": "node --loader ts-node/esm ./src/test.ts"
+  },
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "@awdware/eslint-config-base": "^1.2.0",
+    "@awdware/eslint-config-nodejs": "^1.0.0",
+    "@awdware/prettier-config": "^1.0.0",
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.11.24",
+    "@typescript-eslint/eslint-plugin": "^7.1.0",
+    "@typescript-eslint/parser": "^7.1.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-unused-imports": "^3.1.0",
+    "jest": "^29.7.0",
+    "jest-junit": "^16.0.0",
+    "legally": "^3.5.10",
+    "prettier": "^3.2.5",
+    "rimraf": "^5.0.5",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "prettier": "@awdware/prettier-config",
+  "keywords": [
+    "typescript"
+  ],
+  "author": {
+    "name": "Janik Schumacher (LoaderB0T)",
+    "url": "https://awdware.de"
+  },
+  "homepage": "https://github.com/LoaderB0T/typescript-starter",
+  "bugs": {
+    "url": "https://github.com/LoaderB0T/typescript-starter/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LoaderB0T/typescript-starter.git"
+  }
+}
