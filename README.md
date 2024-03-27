@@ -33,10 +33,6 @@ yarn add textarea-selection-bounds
 npm i textarea-selection-bounds
 ```
 
-## Docs 📃
-
-Find a bit of documentation [here](https://github.com/LoaderB0T/textarea-selection-bounds/blob/main/DOCS.md).
-
 ## Usage Example 🚀
 
 ```typescript
