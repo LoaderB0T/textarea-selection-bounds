@@ -104,8 +104,6 @@ export class TextareaSelectionBounds {
 
     const spanZeroWidth = document.createElement('span');
     spanZeroWidth.textContent = '\u200B';
-    const spanZeroWidth2 = document.createElement('span');
-    spanZeroWidth2.textContent = '\u200B';
     const spanUntilSelection = document.createElement('span');
     spanUntilSelection.textContent = textContentUntilSelection;
     const spanSelection = document.createElement('span');
@@ -114,7 +112,6 @@ export class TextareaSelectionBounds {
     div.appendChild(spanUntilSelection);
     div.appendChild(spanZeroWidth);
     div.appendChild(spanSelection);
-    div.appendChild(spanZeroWidth2);
 
     document.body.appendChild(div);
 
