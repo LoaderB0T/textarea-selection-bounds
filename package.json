@@ -49,7 +49,12 @@
   },
   "prettier": "@awdware/prettier-config",
   "keywords": [
-    "typescript"
+    "typescript",
+    "textarea",
+    "selection",
+    "bounds",
+    "rect",
+    "range"
   ],
   "author": {
     "name": "Janik Schumacher (LoaderB0T)",
