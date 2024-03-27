@@ -64,6 +64,8 @@ export class TextareaSelectionBounds {
     if (!isEqual) {
       this._cache.textContent = newCache.textContent;
       this._cache.selection = newCache.selection;
+      this._cache.amountOfScrollY = newCache.amountOfScrollY;
+      this._cache.amountOfScrollX = newCache.amountOfScrollX;
     }
 
     return isEqual;
