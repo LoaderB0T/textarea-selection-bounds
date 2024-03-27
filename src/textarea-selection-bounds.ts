@@ -10,9 +10,24 @@ const defaultRelevantStyles: CSSStyleDeclarationWritableKeys[] = [
   'lineHeight',
 ];
 
+type Cache = {
+  textContent: string;
+  selection: TextSelection;
+  result: SelectionBounds;
+  amountOfScrollY: number;
+  amountOfScrollX: number;
+};
+
 export class TextareaSelectionBounds {
   private readonly _textArea: HTMLTextAreaElement;
   private readonly _options: Options;
+  private readonly _cache: Cache = {
+    textContent: '',
+    selection: { from: 0, to: 0 },
+    result: { top: 0, left: 0, width: 0, height: 0 },
+    amountOfScrollY: 0,
+    amountOfScrollX: 0,
+  };
 
   constructor(textArea: HTMLTextAreaElement, options?: Partial<Options>) {
     this._textArea = textArea;
@@ -38,6 +53,22 @@ export class TextareaSelectionBounds {
     return this.getBoundsForSelection(selection);
   }
 
+  private compareCache(newCache: Cache) {
+    const isEqual =
+      this._cache.textContent === newCache.textContent &&
+      this._cache.selection.from === newCache.selection.from &&
+      this._cache.selection.to === newCache.selection.to &&
+      this._cache.amountOfScrollY === newCache.amountOfScrollY &&
+      this._cache.amountOfScrollX === newCache.amountOfScrollX;
+
+    if (!isEqual) {
+      this._cache.textContent = newCache.textContent;
+      this._cache.selection = newCache.selection;
+    }
+
+    return isEqual;
+  }
+
   public getBoundsForSelection(selection: TextSelection): SelectionBounds {
     const actualFrom = Math.min(selection.from, selection.to);
     const actualTo = Math.max(selection.from, selection.to);
@@ -56,6 +87,18 @@ export class TextareaSelectionBounds {
 
     const textContentUntilSelection = this._textArea.value.substring(0, actualFrom);
     const textContentSelection = this._textArea.value.substring(actualFrom, actualTo);
+
+    if (
+      this.compareCache({
+        textContent: this._textArea.value,
+        selection: { from: actualFrom, to: actualTo },
+        result: { top: 0, left: 0, width: 0, height: 0 },
+        amountOfScrollY,
+        amountOfScrollX,
+      })
+    ) {
+      return this._cache.result;
+    }
 
     const spanZeroWidth = document.createElement('span');
     spanZeroWidth.textContent = '\u200B';
@@ -90,6 +133,8 @@ export class TextareaSelectionBounds {
     const width = spanSelection.getBoundingClientRect().width;
 
     document.body.removeChild(div);
+
+    this._cache.result = { top, left, height, width };
 
     return {
       top,
