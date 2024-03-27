@@ -1,7 +1,7 @@
 {
-  "name": "typescript-starter",
-  "version": "0.0.0",
-  "description": "A template for typescript projects",
+  "name": "textarea-selection-bounds",
+  "version": "0.1.0",
+  "description": "A handy package to get the bounds of the current text selection in a textarea element",
   "main": "./lib/cjs/index.js",
   "exports": {
     ".": {
@@ -55,12 +55,12 @@
     "name": "Janik Schumacher (LoaderB0T)",
     "url": "https://awdware.de"
   },
-  "homepage": "https://github.com/LoaderB0T/typescript-starter",
+  "homepage": "https://github.com/LoaderB0T/textarea-selection-bounds",
   "bugs": {
-    "url": "https://github.com/LoaderB0T/typescript-starter/issues"
+    "url": "https://github.com/LoaderB0T/textarea-selection-bounds/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/LoaderB0T/typescript-starter.git"
+    "url": "https://github.com/LoaderB0T/textarea-selection-bounds.git"
   }
 }

@@ -1,27 +1,23 @@
-[![npm](https://img.shields.io/npm/v/typescript-starter?color=%2300d26a&style=for-the-badge)](https://www.npmjs.com/package/typescript-starter)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/LoaderB0T/typescript-starter/build.yml?branch=main&style=for-the-badge)](https://github.com/LoaderB0T/typescript-starter/actions/workflows/build.yml)
-[![Sonar Quality Gate](https://img.shields.io/sonar/quality_gate/LoaderB0T_typescript-starter?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge)](https://sonarcloud.io/summary/new_code?id=LoaderB0T_typescript-starter)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/typescript-starter?color=%23FF006F&label=Bundle%20Size&style=for-the-badge)](https://bundlephobia.com/package/typescript-starter)
+[![npm](https://img.shields.io/npm/v/textarea-selection-bounds?color=%2300d26a&style=for-the-badge)](https://www.npmjs.com/package/textarea-selection-bounds)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/LoaderB0T/textarea-selection-bounds/build.yml?branch=main&style=for-the-badge)](https://github.com/LoaderB0T/textarea-selection-bounds/actions/workflows/build.yml)
+[![Sonar Quality Gate](https://img.shields.io/sonar/quality_gate/LoaderB0T_textarea-selection-bounds?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge)](https://sonarcloud.io/summary/new_code?id=LoaderB0T_textarea-selection-bounds)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/textarea-selection-bounds?color=%23FF006F&label=Bundle%20Size&style=for-the-badge)](https://bundlephobia.com/package/textarea-selection-bounds)
 
-# typescript-starter
+# textarea-selection-bounds
 
-Tempalte for TypeScript projects with Jest, ESLint, Prettier, GitHub Actions, and more.
+Easily get the bounds of a selection in a textarea.
 
 ## Motivation 💥
 
-**typescript-starter** is a template for TypeScript (ESM&CJS) projects with Jest, ESLint, Prettier, GitHub Actions, and more.
+**textarea-selection-bounds** is a simple library that allows you to get the bounds of a selection in a textarea. It is written in TypeScript and has no dependencies. It is perfect to overlay content on top of a textarea that should follow the selection.
 
 ## Features 🔥
 
-✅ Put features here
+✅ Get top, left, width, and height of a selection in a textarea.
 
-✅ Add more features here
+✅ Zero dependencies.
 
-✅ Add even more features here
-
-✅ How about some more features?
-
-✅ Ok, last one
+✅ Strongly typed.
 
 ## Built With 🔧
 
@@ -30,26 +26,29 @@ Tempalte for TypeScript projects with Jest, ESLint, Prettier, GitHub Actions, an
 ## Installation 📦
 
 ```console
-pnpm i typescript-starter
+pnpm i textarea-selection-bounds
 // or
-yarn add typescript-starter
+yarn add textarea-selection-bounds
 // or
-npm i typescript-starter
+npm i textarea-selection-bounds
 ```
 
 ## Docs 📃
 
-Find a bit of documentation [here](https://github.com/LoaderB0T/typescript-starter/blob/main/DOCS.md).
+Find a bit of documentation [here](https://github.com/LoaderB0T/textarea-selection-bounds/blob/main/DOCS.md).
 
 ## Usage Example 🚀
 
 ```typescript
-import { Something } from 'typescript-starter';
+import { TextareaSelectionBounds } from "./textarea-selection-bounds";
 ```
 
 ```typescript
-// Example: Simple text logging
-Something.dostuff('Welcome to typescript-starter!');
+const textArea = document.querySelector('textarea');
+if (textArea) {
+  const bounds = new TextareaSelectionBounds(textArea);
+  console.log(bounds.getBounds());
+}
 ```
 
 ## Contributing 🧑🏻‍💻
@@ -73,4 +72,4 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 Janik Schumacher - [@LoaderB0T](https://twitter.com/LoaderB0T) - [linkedin](https://www.linkedin.com/in/janikschumacher/)
 
-Project Link: [https://github.com/LoaderB0T/typescript-starter](https://github.com/LoaderB0T/typescript-starter)
+Project Link: [https://github.com/LoaderB0T/textarea-selection-bounds](https://github.com/LoaderB0T/textarea-selection-bounds)
