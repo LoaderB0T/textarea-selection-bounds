@@ -24,7 +24,7 @@ export class TextareaSelectionBounds {
   private readonly _cache: Cache = {
     textContent: '',
     selection: { from: 0, to: 0 },
-    result: { top: 0, left: 0, width: 0, height: 0, changed: false },
+    result: { top: 0, left: 0, width: 0, height: 0, changed: false, text: '' },
     amountOfScrollY: 0,
     amountOfScrollX: 0,
   };
@@ -138,7 +138,7 @@ export class TextareaSelectionBounds {
       return this._cache.result;
     }
 
-    this._cache.result = { top, left, height, width, changed: false };
+    this._cache.result = { top, left, height, width, changed: false, text: textContentSelection };
 
     return {
       top,
@@ -146,6 +146,7 @@ export class TextareaSelectionBounds {
       height,
       width,
       changed: true,
+      text: textContentSelection,
     };
   }
 }
