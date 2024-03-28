@@ -24,7 +24,7 @@ export class TextareaSelectionBounds {
   private readonly _cache: Cache = {
     textContent: '',
     selection: { from: 0, to: 0 },
-    result: { top: 0, left: 0, width: 0, height: 0 },
+    result: { top: 0, left: 0, width: 0, height: 0, changed: false },
     amountOfScrollY: 0,
     amountOfScrollX: 0,
   };
@@ -53,7 +53,7 @@ export class TextareaSelectionBounds {
     return this.getBoundsForSelection(selection);
   }
 
-  private compareCache(newCache: Cache) {
+  private compareCache(newCache: Omit<Cache, 'result'>): boolean {
     const isEqual =
       this._cache.textContent === newCache.textContent &&
       this._cache.selection.from === newCache.selection.from &&
@@ -94,7 +94,6 @@ export class TextareaSelectionBounds {
       this.compareCache({
         textContent: this._textArea.value,
         selection: { from: actualFrom, to: actualTo },
-        result: { top: 0, left: 0, width: 0, height: 0 },
         amountOfScrollY,
         amountOfScrollX,
       })
@@ -102,15 +101,12 @@ export class TextareaSelectionBounds {
       return this._cache.result;
     }
 
-    const spanZeroWidth = document.createElement('span');
-    spanZeroWidth.textContent = '\u200B';
     const spanUntilSelection = document.createElement('span');
     spanUntilSelection.textContent = textContentUntilSelection;
     const spanSelection = document.createElement('span');
     spanSelection.textContent = textContentSelection;
 
     div.appendChild(spanUntilSelection);
-    div.appendChild(spanZeroWidth);
     div.appendChild(spanSelection);
 
     document.body.appendChild(div);
@@ -119,7 +115,7 @@ export class TextareaSelectionBounds {
     const divLeft = div.getBoundingClientRect().left;
 
     const top =
-      spanZeroWidth.getBoundingClientRect().top -
+      spanSelection.getBoundingClientRect().top -
       divTop -
       amountOfScrollY +
       this._options.textAreaPadding.top;
@@ -133,13 +129,23 @@ export class TextareaSelectionBounds {
 
     document.body.removeChild(div);
 
-    this._cache.result = { top, left, height, width };
+    if (
+      this._cache.result.top === top &&
+      this._cache.result.left === left &&
+      this._cache.result.height === height &&
+      this._cache.result.width === width
+    ) {
+      return this._cache.result;
+    }
+
+    this._cache.result = { top, left, height, width, changed: false };
 
     return {
       top,
       left,
       height,
       width,
+      changed: true,
     };
   }
 }

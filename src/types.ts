@@ -8,6 +8,7 @@ export type SelectionBounds = {
   left: number;
   width: number;
   height: number;
+  changed: boolean;
 };
 
 export type Options = {
