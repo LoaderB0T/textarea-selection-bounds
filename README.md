@@ -1,6 +1,5 @@
 [![npm](https://img.shields.io/npm/v/textarea-selection-bounds?color=%2300d26a&style=for-the-badge)](https://www.npmjs.com/package/textarea-selection-bounds)
-[![Demo Codepen](https://img.shields.io/badge/demo-codepen-blue?style=for-the-badge&logo=codepen)
-](https://codepen.io/Janik-Schumacher/pen/gOyGxed)
+[![Demo Codepen](https://img.shields.io/badge/demo-codepen-blue?style=for-the-badge&logo=codepen)](https://codepen.io/Janik-Schumacher/pen/gOyGxed)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/LoaderB0T/textarea-selection-bounds/build.yml?branch=main&style=for-the-badge)](https://github.com/LoaderB0T/textarea-selection-bounds/actions/workflows/build.yml)
 [![Sonar Quality Gate](https://img.shields.io/sonar/quality_gate/LoaderB0T_textarea-selection-bounds?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge)](https://sonarcloud.io/summary/new_code?id=LoaderB0T_textarea-selection-bounds)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/textarea-selection-bounds?color=%23FF006F&label=Bundle%20Size&style=for-the-badge)](https://bundlephobia.com/package/textarea-selection-bounds)
