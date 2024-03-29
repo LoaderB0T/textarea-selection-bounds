@@ -5,7 +5,7 @@ import {
   TextSelection,
 } from './types.js';
 
-const defaultRelevantStyles: string[] = ['font', 'lineHeight', 'border', 'padding', 'boxSizing'];
+const defaultRelevantStyles: string[] = ['font', 'lineHeight', 'border', 'padding'];
 
 type Cache = {
   textContent: string;
@@ -96,6 +96,7 @@ export class TextareaSelectionBounds {
     div.style.whiteSpace = 'pre-wrap';
     div.style.width = `${this._textArea.scrollWidth}px`;
     div.style.height = 'auto';
+    div.style.boxSizing = 'border-box';
     if (!this._options.debug) {
       div.style.position = 'absolute';
       div.style.visibility = 'hidden';
