@@ -103,6 +103,7 @@ export class TextareaSelectionBounds {
 
     const textContentUntilSelection = this._textArea.value.substring(0, actualFrom);
     const textContentSelection = this._textArea.value.substring(actualFrom, actualTo);
+    const textContentAfterSelection = this._textArea.value.substring(actualTo);
 
     if (
       this.compareCache({
@@ -119,9 +120,15 @@ export class TextareaSelectionBounds {
     spanUntilSelection.textContent = textContentUntilSelection;
     const spanSelection = document.createElement('span');
     spanSelection.textContent = textContentSelection;
+    if (this._options.debug) {
+      spanSelection.style.backgroundColor = 'rgba(0, 0, 255, 0.3)';
+    }
+    const spanAfterSelection = document.createElement('span');
+    spanAfterSelection.textContent = textContentAfterSelection;
 
     div.appendChild(spanUntilSelection);
     div.appendChild(spanSelection);
+    div.appendChild(spanAfterSelection);
 
     if (this._options.debug) {
       const existingDiv = document.getElementById('textarea-selection-bounds-div');
