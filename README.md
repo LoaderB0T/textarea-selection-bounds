@@ -1,4 +1,6 @@
 [![npm](https://img.shields.io/npm/v/textarea-selection-bounds?color=%2300d26a&style=for-the-badge)](https://www.npmjs.com/package/textarea-selection-bounds)
+[![Demo Codepen](https://img.shields.io/badge/demo-codepen-blue?style=for-the-badge&logo=codepen)
+](https://codepen.io/Janik-Schumacher/pen/gOyGxed)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/LoaderB0T/textarea-selection-bounds/build.yml?branch=main&style=for-the-badge)](https://github.com/LoaderB0T/textarea-selection-bounds/actions/workflows/build.yml)
 [![Sonar Quality Gate](https://img.shields.io/sonar/quality_gate/LoaderB0T_textarea-selection-bounds?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge)](https://sonarcloud.io/summary/new_code?id=LoaderB0T_textarea-selection-bounds)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/textarea-selection-bounds?color=%23FF006F&label=Bundle%20Size&style=for-the-badge)](https://bundlephobia.com/package/textarea-selection-bounds)
@@ -11,7 +13,11 @@ Easily get the bounds of a selection in a textarea.
 
 **textarea-selection-bounds** is a simple library that allows you to get the bounds of a selection in a textarea. It is written in TypeScript and has no dependencies. It is perfect to overlay content on top of a textarea that should follow the selection.
 
-`top` & `left` are the coordinates of the top-left corner of the selection. They are relative to the top-left corner of the textarea. To adjust for padding inside the textarea, you can use the property `textAreaPadding` in the  optional `options` parameter.
+`top` & `left` are the coordinates of the top-left corner of the selection. They are relative to the window. `width` & `height` are the dimensions of the selection.
+
+## Demo 🚀
+
+See the [Codepen](https://codepen.io/Janik-Schumacher/pen/gOyGxed) for a live demo.
 
 ## Features 🔥
 
