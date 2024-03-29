@@ -1,14 +1,11 @@
-import { CSSStyleDeclarationWritableKeys, Options, SelectionBounds, TextSelection } from './types';
+import {
+  CSSStyleDeclarationWritableKeys,
+  Options,
+  SelectionBounds,
+  TextSelection,
+} from './types.js';
 
-const defaultRelevantStyles: CSSStyleDeclarationWritableKeys[] = [
-  'font',
-  'fontFamily',
-  'fontSize',
-  'fontWeight',
-  'fontStyle',
-  'fontVariant',
-  'lineHeight',
-];
+const defaultRelevantStyles: string[] = ['font', 'lineHeight', 'border', 'padding', 'boxSizing'];
 
 type Cache = {
   textContent: string;
@@ -28,17 +25,28 @@ export class TextareaSelectionBounds {
     amountOfScrollY: 0,
     amountOfScrollX: 0,
   };
+  private _computedTextAreaStyle: CSSStyleDeclaration;
 
   constructor(textArea: HTMLTextAreaElement, options?: Partial<Options>) {
     this._textArea = textArea;
+    this._computedTextAreaStyle = getComputedStyle(this._textArea);
     this._options = {
       relevantStyles: options?.relevantStyles ?? [],
-      textAreaPadding: options?.textAreaPadding ?? { top: 0, left: 0 },
     };
   }
 
+  public deleteStyleCache() {
+    this._computedTextAreaStyle = getComputedStyle(this._textArea);
+  }
+
+  private getAllKeysStartingWith(startingWith: string[]): CSSStyleDeclarationWritableKeys[] {
+    return Object.keys(this._computedTextAreaStyle).filter(key =>
+      startingWith.some(start => key.startsWith(start))
+    ) as CSSStyleDeclarationWritableKeys[];
+  }
+
   private get relevantStyles(): CSSStyleDeclarationWritableKeys[] {
-    return [...defaultRelevantStyles, ...this._options.relevantStyles];
+    return [...this.getAllKeysStartingWith(defaultRelevantStyles), ...this._options.relevantStyles];
   }
 
   public getCurrentSelection(): TextSelection {
@@ -79,6 +87,7 @@ export class TextareaSelectionBounds {
     const amountOfScrollX = this._textArea.scrollLeft;
 
     const div = document.createElement('div');
+    div.id = 'textarea-selection-bounds-div';
     const copyStyle = getComputedStyle(this._textArea);
     for (const prop of this.relevantStyles) {
       div.style[prop] = copyStyle[prop] as any;
@@ -86,6 +95,8 @@ export class TextareaSelectionBounds {
     div.style.whiteSpace = 'pre-wrap';
     div.style.width = `${this._textArea.scrollWidth}px`;
     div.style.height = 'auto';
+    div.style.position = 'absolute';
+    div.style.visibility = 'hidden';
 
     const textContentUntilSelection = this._textArea.value.substring(0, actualFrom);
     const textContentSelection = this._textArea.value.substring(actualFrom, actualTo);
@@ -111,21 +122,20 @@ export class TextareaSelectionBounds {
 
     document.body.appendChild(div);
 
-    const divTop = div.getBoundingClientRect().top;
-    const divLeft = div.getBoundingClientRect().left;
+    const divRect = div.getBoundingClientRect();
+    const divTop = divRect.top;
+    const divLeft = divRect.left;
 
-    const top =
-      spanSelection.getBoundingClientRect().top -
-      divTop -
-      amountOfScrollY +
-      this._options.textAreaPadding.top;
-    const left =
-      spanSelection.getBoundingClientRect().left -
-      divLeft -
-      amountOfScrollX +
-      this._options.textAreaPadding.left;
-    const height = spanSelection.getBoundingClientRect().height;
-    const width = spanSelection.getBoundingClientRect().width;
+    const textAreaRect = this._textArea.getBoundingClientRect();
+    const textAreaTop = textAreaRect.top;
+    const textAreaLeft = textAreaRect.left;
+
+    const spanSelectionRect = spanSelection.getBoundingClientRect();
+
+    const top = spanSelectionRect.top - divTop - amountOfScrollY + textAreaTop;
+    const left = spanSelectionRect.left - divLeft - amountOfScrollX + textAreaLeft;
+    const height = spanSelectionRect.height;
+    const width = spanSelectionRect.width;
 
     document.body.removeChild(div);
 

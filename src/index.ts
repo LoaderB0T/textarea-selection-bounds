@@ -1,2 +1,2 @@
-export * from './textarea-selection-bounds';
-export * from './types';
+export * from './textarea-selection-bounds.js';
+export * from './types.js';

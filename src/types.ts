@@ -14,10 +14,6 @@ export type SelectionBounds = {
 
 export type Options = {
   relevantStyles: CSSStyleDeclarationWritableKeys[];
-  textAreaPadding: {
-    top: number;
-    left: number;
-  };
 };
 
 export type CSSStyleDeclarationWritableKeys = Exclude<

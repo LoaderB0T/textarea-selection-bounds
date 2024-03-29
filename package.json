@@ -1,6 +1,6 @@
 {
   "name": "textarea-selection-bounds",
-  "version": "1.0.5",
+  "version": "2.0.0",
   "description": "A handy package to get the bounds of the current text selection in a textarea element",
   "main": "./lib/cjs/index.js",
   "exports": {
@@ -22,6 +22,9 @@
     "build-base": "tsc -p .",
     "build-esm": "pnpm build-base --outDir lib/esm",
     "build-cjs": "pnpm build-base --outDir lib/cjs --module commonjs && pnpm fix-cjs",
+    "copy-test": "pnpm cpy --flat ./test/index.html ./lib/esm",
+    "build-test": "pnpm build-esm --sourceMap false && pnpm copy-test && pnpm build-esm --sourceMap false --watch",
+    "start-test": "pnpm http-server ./lib/esm",
     "fix-cjs": "node --loader ts-node/esm ./fix-cjs.ts",
     "test-script": "node --loader ts-node/esm ./src/test.ts"
   },
@@ -67,5 +70,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/LoaderB0T/textarea-selection-bounds.git"
+  },
+  "dependencies": {
+    "cpy-cli": "^5.0.0",
+    "http-server": "^14.1.1"
   }
 }
