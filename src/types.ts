@@ -14,6 +14,7 @@ export type SelectionBounds = {
 
 export type Options = {
   relevantStyles: CSSStyleDeclarationWritableKeys[];
+  debug: boolean;
 };
 
 export type CSSStyleDeclarationWritableKeys = Exclude<

@@ -32,6 +32,7 @@ export class TextareaSelectionBounds {
     this._computedTextAreaStyle = getComputedStyle(this._textArea);
     this._options = {
       relevantStyles: options?.relevantStyles ?? [],
+      debug: options?.debug ?? false,
     };
   }
 
@@ -95,8 +96,10 @@ export class TextareaSelectionBounds {
     div.style.whiteSpace = 'pre-wrap';
     div.style.width = `${this._textArea.scrollWidth}px`;
     div.style.height = 'auto';
-    div.style.position = 'absolute';
-    div.style.visibility = 'hidden';
+    if (!this._options.debug) {
+      div.style.position = 'absolute';
+      div.style.visibility = 'hidden';
+    }
 
     const textContentUntilSelection = this._textArea.value.substring(0, actualFrom);
     const textContentSelection = this._textArea.value.substring(actualFrom, actualTo);
@@ -120,6 +123,13 @@ export class TextareaSelectionBounds {
     div.appendChild(spanUntilSelection);
     div.appendChild(spanSelection);
 
+    if (this._options.debug) {
+      const existingDiv = document.getElementById('textarea-selection-bounds-div');
+      if (existingDiv) {
+        document.body.removeChild(existingDiv);
+      }
+    }
+
     document.body.appendChild(div);
 
     const divRect = div.getBoundingClientRect();
@@ -137,7 +147,9 @@ export class TextareaSelectionBounds {
     const height = spanSelectionRect.height;
     const width = spanSelectionRect.width;
 
-    document.body.removeChild(div);
+    if (!this._options.debug) {
+      document.body.removeChild(div);
+    }
 
     if (
       this._cache.result.top === top &&

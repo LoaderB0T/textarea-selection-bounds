@@ -2,7 +2,7 @@ import { TextareaSelectionBounds } from './index.js';
 
 const textarea = document.getElementById('textarea') as HTMLTextAreaElement;
 
-const a = new TextareaSelectionBounds(textarea);
+const a = new TextareaSelectionBounds(textarea, { debug: true });
 
 const marker = document.getElementById('marker') as HTMLDivElement;
 
