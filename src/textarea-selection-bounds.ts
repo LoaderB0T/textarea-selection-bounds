@@ -16,8 +16,11 @@ type Cache = {
 };
 
 export class TextareaSelectionBounds {
+  // @internal
   private readonly _textArea: HTMLTextAreaElement;
+  // @internal
   private readonly _options: Options;
+  // @internal
   private readonly _cache: Cache = {
     textContent: '',
     selection: { from: 0, to: 0 },
@@ -25,8 +28,14 @@ export class TextareaSelectionBounds {
     amountOfScrollY: 0,
     amountOfScrollX: 0,
   };
+  // @internal
   private _computedTextAreaStyle: CSSStyleDeclaration;
 
+  /**
+   * Creates a new instance of TextareaSelectionBounds.
+   * @param textArea The textarea element to get the selection bounds for.
+   * @param options The options to use.
+   */
   constructor(textArea: HTMLTextAreaElement, options?: Partial<Options>) {
     this._textArea = textArea;
     this._computedTextAreaStyle = getComputedStyle(this._textArea);
@@ -36,32 +45,19 @@ export class TextareaSelectionBounds {
     };
   }
 
-  public deleteStyleCache() {
-    this._computedTextAreaStyle = getComputedStyle(this._textArea);
-  }
-
+  // @internal
   private getAllKeysStartingWith(startingWith: string[]): CSSStyleDeclarationWritableKeys[] {
     return Object.keys(this._computedTextAreaStyle).filter(key =>
       startingWith.some(start => key.startsWith(start))
     ) as CSSStyleDeclarationWritableKeys[];
   }
 
+  // @internal
   private get relevantStyles(): CSSStyleDeclarationWritableKeys[] {
     return [...this.getAllKeysStartingWith(defaultRelevantStyles), ...this._options.relevantStyles];
   }
 
-  public getCurrentSelection(): TextSelection {
-    return {
-      from: this._textArea.selectionStart,
-      to: this._textArea.selectionEnd,
-    };
-  }
-
-  public getBounds() {
-    const selection = this.getCurrentSelection();
-    return this.getBoundsForSelection(selection);
-  }
-
+  // @internal
   private compareCache(newCache: Omit<Cache, 'result'>): boolean {
     const isEqual =
       this._cache.textContent === newCache.textContent &&
@@ -80,7 +76,8 @@ export class TextareaSelectionBounds {
     return isEqual;
   }
 
-  public getBoundsForSelection(selection: TextSelection): SelectionBounds {
+  // @internal
+  private getBoundsForSelection(selection: TextSelection): SelectionBounds {
     const actualFrom = Math.min(selection.from, selection.to);
     const actualTo = Math.max(selection.from, selection.to);
 
@@ -178,5 +175,51 @@ export class TextareaSelectionBounds {
       changed: true,
       text: textContentSelection,
     };
+  }
+
+  /**
+   * Deletes the style cache. Call this is the textarea style has changed (e.g. font size, padding, etc.)
+   */
+  public deleteStyleCache(): void {
+    this._computedTextAreaStyle = getComputedStyle(this._textArea);
+  }
+
+  /**
+   * Returns the current selection bounds.
+   * @returns The current selection bounds.
+   * @example
+   * const bounds = textareaSelectionBounds.getCurrentSelection();
+   * console.log(bounds);
+   * // { from: 0, to: 5 }
+   */
+  public getCurrentSelection(): TextSelection {
+    return {
+      from: this._textArea.selectionStart,
+      to: this._textArea.selectionEnd,
+    };
+  }
+
+  /**
+   * Returns the bounds of the selection.
+   * @param selection The selection to get the bounds for. If not provided, the current selection will be used.
+   * @returns The bounds of the selection, a changed flag, and the selected text.
+   * @example
+   * const bounds = textareaSelectionBounds.getBounds();
+   * console.log(bounds);
+   * // { top: 10, left: 20, width: 30, height: 40, changed: true, text: 'Hello' }
+   */
+  public getBounds(selection?: TextSelection): SelectionBounds {
+    const useSelection = selection ?? this.getCurrentSelection();
+    return this.getBoundsForSelection(useSelection);
+  }
+
+  /**
+   * Returns the bounding client rect of the selection.
+   * @param selection The selection to get the bounding client rect for. If not provided, the current selection will be used.
+   * @returns The bounding client rect of the selection.
+   */
+  public getBoundingClientRect(selection?: TextSelection): DOMRect {
+    const bounds = this.getBounds(selection);
+    return new DOMRect(bounds.left, bounds.top, bounds.width, bounds.height);
   }
 }
