@@ -6,6 +6,8 @@ import {
 } from './types.js';
 
 const defaultRelevantStyles: string[] = ['font', 'lineHeight', 'border', 'padding'];
+const debugMarkerId = 'textarea-selection-bounds-debug-marker';
+const measureDivId = 'textarea-selection-bounds-div';
 
 type Cache = {
   textContent: string;
@@ -85,7 +87,7 @@ export class TextareaSelectionBounds {
     const amountOfScrollX = this._textArea.scrollLeft;
 
     const div = document.createElement('div');
-    div.id = 'textarea-selection-bounds-div';
+    div.id = measureDivId;
     const copyStyle = getComputedStyle(this._textArea);
     for (const prop of this.relevantStyles) {
       div.style[prop] = copyStyle[prop] as any;
@@ -129,7 +131,7 @@ export class TextareaSelectionBounds {
     div.appendChild(spanAfterSelection);
 
     if (this._options.debug) {
-      const existingDiv = document.getElementById('textarea-selection-bounds-div');
+      const existingDiv = document.getElementById(measureDivId);
       if (existingDiv) {
         document.body.removeChild(existingDiv);
       }
@@ -167,7 +169,7 @@ export class TextareaSelectionBounds {
 
     this._cache.result = { top, left, height, width, changed: false, text: textContentSelection };
 
-    return {
+    const res: SelectionBounds = {
       top,
       left,
       height,
@@ -175,6 +177,28 @@ export class TextareaSelectionBounds {
       changed: true,
       text: textContentSelection,
     };
+
+    // Logs & draws a box around the selection in debug mode
+    if (this._options.debug) {
+      console.log(res);
+      const marker = document.createElement('div');
+      marker.id = debugMarkerId;
+      marker.style.position = 'absolute';
+      marker.style.pointerEvents = 'none';
+      marker.style.backgroundColor = '#ff00424d';
+      marker.style.top = `${res.top}px`;
+      marker.style.left = `${res.left}px`;
+      marker.style.width = `${res.width}px`;
+      marker.style.height = `${res.height}px`;
+      marker.style.zIndex = '999999999';
+      const existingMarker = document.getElementById(debugMarkerId);
+      if (existingMarker) {
+        document.body.removeChild(existingMarker);
+      }
+      document.body.appendChild(marker);
+    }
+
+    return res;
   }
 
   /**
