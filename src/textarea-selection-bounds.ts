@@ -15,6 +15,10 @@ type Cache = {
   result: SelectionBounds;
   amountOfScrollY: number;
   amountOfScrollX: number;
+  textAreaTop: number;
+  textAreaLeft: number;
+  windowScrollY: number;
+  windowScrollX: number;
 };
 
 export class TextareaSelectionBounds {
@@ -29,6 +33,10 @@ export class TextareaSelectionBounds {
     result: { top: 0, left: 0, width: 0, height: 0, changed: false, text: '' },
     amountOfScrollY: 0,
     amountOfScrollX: 0,
+    textAreaTop: 0,
+    textAreaLeft: 0,
+    windowScrollY: 0,
+    windowScrollX: 0,
   };
   // @internal
   private _computedTextAreaStyle: CSSStyleDeclaration;
@@ -66,13 +74,21 @@ export class TextareaSelectionBounds {
       this._cache.selection.from === newCache.selection.from &&
       this._cache.selection.to === newCache.selection.to &&
       this._cache.amountOfScrollY === newCache.amountOfScrollY &&
-      this._cache.amountOfScrollX === newCache.amountOfScrollX;
+      this._cache.amountOfScrollX === newCache.amountOfScrollX &&
+      this._cache.textAreaTop === newCache.textAreaTop &&
+      this._cache.textAreaLeft === newCache.textAreaLeft &&
+      this._cache.windowScrollY === newCache.windowScrollY &&
+      this._cache.windowScrollX === newCache.windowScrollX;
 
     if (!isEqual) {
       this._cache.textContent = newCache.textContent;
       this._cache.selection = newCache.selection;
       this._cache.amountOfScrollY = newCache.amountOfScrollY;
       this._cache.amountOfScrollX = newCache.amountOfScrollX;
+      this._cache.textAreaTop = newCache.textAreaTop;
+      this._cache.textAreaLeft = newCache.textAreaLeft;
+      this._cache.windowScrollY = newCache.windowScrollY;
+      this._cache.windowScrollX = newCache.windowScrollX;
     }
 
     return isEqual;
@@ -105,12 +121,22 @@ export class TextareaSelectionBounds {
     const textContentSelection = this._textArea.value.substring(actualFrom, actualTo);
     const textContentAfterSelection = this._textArea.value.substring(actualTo);
 
+    const textAreaRect = this._textArea.getBoundingClientRect();
+    const textAreaTop = textAreaRect.top;
+    const textAreaLeft = textAreaRect.left;
+    const windowScrollY = window.scrollY;
+    const windowScrollX = window.scrollX;
+
     if (
       this.compareCache({
         textContent: this._textArea.value,
         selection: { from: actualFrom, to: actualTo },
         amountOfScrollY,
         amountOfScrollX,
+        textAreaTop,
+        textAreaLeft,
+        windowScrollY,
+        windowScrollX,
       })
     ) {
       return this._cache.result;
@@ -143,14 +169,10 @@ export class TextareaSelectionBounds {
     const divTop = divRect.top;
     const divLeft = divRect.left;
 
-    const textAreaRect = this._textArea.getBoundingClientRect();
-    const textAreaTop = textAreaRect.top;
-    const textAreaLeft = textAreaRect.left;
-
     const spanSelectionRect = spanSelection.getBoundingClientRect();
 
-    const top = spanSelectionRect.top - divTop - amountOfScrollY + textAreaTop;
-    const left = spanSelectionRect.left - divLeft - amountOfScrollX + textAreaLeft;
+    const top = spanSelectionRect.top - divTop - amountOfScrollY + textAreaTop + windowScrollY;
+    const left = spanSelectionRect.left - divLeft - amountOfScrollX + textAreaLeft + windowScrollX;
     const height = spanSelectionRect.height;
     const width = spanSelectionRect.width;
 
