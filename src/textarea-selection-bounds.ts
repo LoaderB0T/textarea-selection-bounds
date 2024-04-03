@@ -57,7 +57,7 @@ export class TextareaSelectionBounds {
 
   // @internal
   private getAllKeysStartingWith(startingWith: string[]): CSSStyleDeclarationWritableKeys[] {
-    return Object.keys(this._computedTextAreaStyle).filter(key =>
+    return Array.from(this._computedTextAreaStyle).filter(key =>
       startingWith.some(start => key.startsWith(start))
     ) as CSSStyleDeclarationWritableKeys[];
   }
