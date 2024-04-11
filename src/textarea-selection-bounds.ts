@@ -86,7 +86,14 @@ export class TextareaSelectionBounds {
 
   // @internal
   private get relevantStyles(): CSSStyleDeclarationWritableKeys[] {
-    return [...this.getAllKeysStartingWith(defaultRelevantStyles), ...this._options.relevantStyles];
+    const defaultRelevantStylesDashCase = defaultRelevantStyles.map(s =>
+      s.replace(/[A-Z]/g, '-$&').toLowerCase()
+    );
+
+    return [
+      ...this.getAllKeysStartingWith(defaultRelevantStylesDashCase),
+      ...this._options.relevantStyles.map(s => s.replace(/[A-Z]/g, '-$&').toLowerCase()),
+    ] as CSSStyleDeclarationWritableKeys[];
   }
 
   // @internal
