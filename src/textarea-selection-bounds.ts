@@ -5,7 +5,29 @@ import {
   TextSelection,
 } from './types.js';
 
-const defaultRelevantStyles: string[] = ['font', 'lineHeight', 'border', 'padding'];
+type GetAllPossibleBeginningsOfString<
+  T extends CSSStyleDeclarationWritableKeys,
+  BeginsWith extends string,
+> = T extends `${BeginsWith}${infer Start}${infer End}`
+  ? End extends ''
+    ? `${BeginsWith}${Start}`
+    :
+        | GetAllPossibleBeginningsOfString<T, `${BeginsWith}${Start}`>
+        | (BeginsWith extends '' ? never : BeginsWith)
+  : never;
+
+type PartialWritableCSSStyleDeclaration = GetAllPossibleBeginningsOfString<
+  CSSStyleDeclarationWritableKeys,
+  ''
+>;
+
+const defaultRelevantStyles: PartialWritableCSSStyleDeclaration[] = [
+  'font',
+  'lineHeight',
+  'border',
+  'padding',
+  'overflowWrap',
+];
 const debugMarkerId = 'textarea-selection-bounds-debug-marker';
 const measureDivId = 'textarea-selection-bounds-div';
 
