@@ -2,6 +2,7 @@ import {
   CSSStyleDeclarationWritableKeys,
   Options,
   SelectionBounds,
+  TextElement,
   TextSelection,
 } from './types.js';
 
@@ -45,7 +46,7 @@ type Cache = {
 
 export class TextareaSelectionBounds {
   // @internal
-  private readonly _textElement: HTMLInputElement | HTMLTextAreaElement;
+  private readonly _textElement: TextElement;
   // @internal
   private readonly _options: Options;
   // @internal
@@ -68,7 +69,7 @@ export class TextareaSelectionBounds {
    * @param textElement The textarea or input element to get the selection bounds for.
    * @param options The options to use.
    */
-  constructor(textElement: HTMLInputElement | HTMLTextAreaElement, options?: Partial<Options>) {
+  constructor(textElement: TextElement, options?: Partial<Options>) {
     this._textElement = textElement;
     this._computedTextElementStyle = getComputedStyle(this._textElement);
     this._options = {

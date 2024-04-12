@@ -3,6 +3,8 @@ export type TextSelection = {
   to: number;
 };
 
+export type TextElement = HTMLTextAreaElement | HTMLInputElement;
+
 export type SelectionBounds = {
   top: number;
   left: number;
