@@ -74,6 +74,7 @@ export class TextareaSelectionBounds {
     this._options = {
       relevantStyles: options?.relevantStyles ?? [],
       debug: options?.debug ?? false,
+      limits: options?.limits ?? [],
     };
   }
 
@@ -200,11 +201,54 @@ export class TextareaSelectionBounds {
 
     const spanSelectionRect = spanSelection.getBoundingClientRect();
 
-    const top = spanSelectionRect.top - divTop - amountOfScrollY + textElementTop + windowScrollY;
-    const left =
-      spanSelectionRect.left - divLeft - amountOfScrollX + textElementLeft + windowScrollX;
-    const height = spanSelectionRect.height;
-    const width = spanSelectionRect.width;
+    let top = spanSelectionRect.top - divTop - amountOfScrollY + textElementTop + windowScrollY;
+    let left = spanSelectionRect.left - divLeft - amountOfScrollX + textElementLeft + windowScrollX;
+    let height = spanSelectionRect.height;
+    let width = spanSelectionRect.width;
+
+    if (this._options.limits.length) {
+      const limitingElements = this._options.limits.map(limit =>
+        limit === 'self' ? this._textElement : limit
+      );
+      const smallestBounds = limitingElements.reduce(
+        (acc, limit) => {
+          const limitRect = limit.getBoundingClientRect();
+          const limitTop = limitRect.top;
+          const limitLeft = limitRect.left;
+          const limitHeight = limit.clientHeight;
+          const limitWidth = limit.clientWidth;
+
+          const newTop = Math.min(Math.max(top, limitTop), limitTop + limitHeight);
+          const newLeft = Math.min(Math.max(left, limitLeft), limitLeft + limitWidth);
+
+          const deltaTop = newTop - top;
+          const deltaLeft = newLeft - left;
+
+          height -= deltaTop;
+          width -= deltaLeft;
+
+          const maxHeight = Math.min(limitTop + limitHeight - newTop, height);
+          const maxWidth = Math.min(limitLeft + limitWidth - newLeft, width);
+
+          top = newTop;
+          left = newLeft;
+          height = maxHeight;
+          width = maxWidth;
+
+          // ensure that the height and width are at least 1
+          height = Math.max(1, height);
+          width = Math.max(1, width);
+
+          return { top, left, height, width };
+        },
+        { top, left, height, width }
+      );
+
+      top = smallestBounds.top;
+      left = smallestBounds.left;
+      height = smallestBounds.height;
+      width = smallestBounds.width;
+    }
 
     if (!this._options.debug) {
       document.body.removeChild(div);

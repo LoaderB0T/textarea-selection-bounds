@@ -23,6 +23,10 @@ export type Options = {
    * Never use this in production.
    */
   debug: boolean;
+  /**
+   * Limits the bounds to itself and/or the specified HTMLElements. The textElement must overlap with the limits!
+   */
+  limits: ('self' | HTMLElement)[];
 };
 
 export type CSSStyleDeclarationWritableKeys = Exclude<
