@@ -37,15 +37,15 @@ type Cache = {
   result: SelectionBounds;
   amountOfScrollY: number;
   amountOfScrollX: number;
-  textAreaTop: number;
-  textAreaLeft: number;
+  textElementTop: number;
+  textElementLeft: number;
   windowScrollY: number;
   windowScrollX: number;
 };
 
 export class TextareaSelectionBounds {
   // @internal
-  private readonly _textArea: HTMLTextAreaElement;
+  private readonly _textElement: HTMLInputElement | HTMLTextAreaElement;
   // @internal
   private readonly _options: Options;
   // @internal
@@ -55,22 +55,22 @@ export class TextareaSelectionBounds {
     result: { top: 0, left: 0, width: 0, height: 0, changed: false, text: '' },
     amountOfScrollY: 0,
     amountOfScrollX: 0,
-    textAreaTop: 0,
-    textAreaLeft: 0,
+    textElementTop: 0,
+    textElementLeft: 0,
     windowScrollY: 0,
     windowScrollX: 0,
   };
   // @internal
-  private _computedTextAreaStyle: CSSStyleDeclaration;
+  private _computedTextElementStyle: CSSStyleDeclaration;
 
   /**
    * Creates a new instance of TextareaSelectionBounds.
-   * @param textArea The textarea element to get the selection bounds for.
+   * @param textElement The textarea or input element to get the selection bounds for.
    * @param options The options to use.
    */
-  constructor(textArea: HTMLTextAreaElement, options?: Partial<Options>) {
-    this._textArea = textArea;
-    this._computedTextAreaStyle = getComputedStyle(this._textArea);
+  constructor(textElement: HTMLInputElement | HTMLTextAreaElement, options?: Partial<Options>) {
+    this._textElement = textElement;
+    this._computedTextElementStyle = getComputedStyle(this._textElement);
     this._options = {
       relevantStyles: options?.relevantStyles ?? [],
       debug: options?.debug ?? false,
@@ -79,7 +79,7 @@ export class TextareaSelectionBounds {
 
   // @internal
   private getAllKeysStartingWith(startingWith: string[]): CSSStyleDeclarationWritableKeys[] {
-    return Array.from(this._computedTextAreaStyle).filter(key =>
+    return Array.from(this._computedTextElementStyle).filter(key =>
       startingWith.some(start => key.startsWith(start))
     ) as CSSStyleDeclarationWritableKeys[];
   }
@@ -104,8 +104,8 @@ export class TextareaSelectionBounds {
       this._cache.selection.to === newCache.selection.to &&
       this._cache.amountOfScrollY === newCache.amountOfScrollY &&
       this._cache.amountOfScrollX === newCache.amountOfScrollX &&
-      this._cache.textAreaTop === newCache.textAreaTop &&
-      this._cache.textAreaLeft === newCache.textAreaLeft &&
+      this._cache.textElementTop === newCache.textElementTop &&
+      this._cache.textElementLeft === newCache.textElementLeft &&
       this._cache.windowScrollY === newCache.windowScrollY &&
       this._cache.windowScrollX === newCache.windowScrollX;
 
@@ -114,8 +114,8 @@ export class TextareaSelectionBounds {
       this._cache.selection = newCache.selection;
       this._cache.amountOfScrollY = newCache.amountOfScrollY;
       this._cache.amountOfScrollX = newCache.amountOfScrollX;
-      this._cache.textAreaTop = newCache.textAreaTop;
-      this._cache.textAreaLeft = newCache.textAreaLeft;
+      this._cache.textElementTop = newCache.textElementTop;
+      this._cache.textElementLeft = newCache.textElementLeft;
       this._cache.windowScrollY = newCache.windowScrollY;
       this._cache.windowScrollX = newCache.windowScrollX;
     }
@@ -128,17 +128,17 @@ export class TextareaSelectionBounds {
     const actualFrom = Math.min(selection.from, selection.to);
     const actualTo = Math.max(selection.from, selection.to);
 
-    const amountOfScrollY = this._textArea.scrollTop;
-    const amountOfScrollX = this._textArea.scrollLeft;
+    const amountOfScrollY = this._textElement.scrollTop;
+    const amountOfScrollX = this._textElement.scrollLeft;
 
     const div = document.createElement('div');
     div.id = measureDivId;
-    const copyStyle = getComputedStyle(this._textArea);
+    const copyStyle = getComputedStyle(this._textElement);
     for (const prop of this.relevantStyles) {
       div.style[prop] = copyStyle[prop] as any;
     }
     div.style.whiteSpace = 'pre-wrap';
-    div.style.width = `${this._textArea.scrollWidth}px`;
+    div.style.width = `${this._textElement.scrollWidth}px`;
     div.style.height = 'auto';
     div.style.boxSizing = 'border-box';
     if (!this._options.debug) {
@@ -146,24 +146,24 @@ export class TextareaSelectionBounds {
       div.style.visibility = 'hidden';
     }
 
-    const textContentUntilSelection = this._textArea.value.substring(0, actualFrom);
-    const textContentSelection = this._textArea.value.substring(actualFrom, actualTo);
-    const textContentAfterSelection = this._textArea.value.substring(actualTo);
+    const textContentUntilSelection = this._textElement.value.substring(0, actualFrom);
+    const textContentSelection = this._textElement.value.substring(actualFrom, actualTo);
+    const textContentAfterSelection = this._textElement.value.substring(actualTo);
 
-    const textAreaRect = this._textArea.getBoundingClientRect();
-    const textAreaTop = textAreaRect.top;
-    const textAreaLeft = textAreaRect.left;
+    const textElementRect = this._textElement.getBoundingClientRect();
+    const textElementTop = textElementRect.top;
+    const textElementLeft = textElementRect.left;
     const windowScrollY = window.scrollY;
     const windowScrollX = window.scrollX;
 
     if (
       this.compareCache({
-        textContent: this._textArea.value,
+        textContent: this._textElement.value,
         selection: { from: actualFrom, to: actualTo },
         amountOfScrollY,
         amountOfScrollX,
-        textAreaTop,
-        textAreaLeft,
+        textElementTop: textElementTop,
+        textElementLeft: textElementLeft,
         windowScrollY,
         windowScrollX,
       })
@@ -200,8 +200,9 @@ export class TextareaSelectionBounds {
 
     const spanSelectionRect = spanSelection.getBoundingClientRect();
 
-    const top = spanSelectionRect.top - divTop - amountOfScrollY + textAreaTop + windowScrollY;
-    const left = spanSelectionRect.left - divLeft - amountOfScrollX + textAreaLeft + windowScrollX;
+    const top = spanSelectionRect.top - divTop - amountOfScrollY + textElementTop + windowScrollY;
+    const left =
+      spanSelectionRect.left - divLeft - amountOfScrollX + textElementLeft + windowScrollX;
     const height = spanSelectionRect.height;
     const width = spanSelectionRect.width;
 
@@ -253,10 +254,10 @@ export class TextareaSelectionBounds {
   }
 
   /**
-   * Deletes the style cache. Call this is the textarea style has changed (e.g. font size, padding, etc.)
+   * Deletes the style cache. Call this is the textElement style has changed (e.g. font size, padding, etc.)
    */
   public deleteStyleCache(): void {
-    this._computedTextAreaStyle = getComputedStyle(this._textArea);
+    this._computedTextElementStyle = getComputedStyle(this._textElement);
   }
 
   /**
@@ -269,8 +270,8 @@ export class TextareaSelectionBounds {
    */
   public getCurrentSelection(): TextSelection {
     return {
-      from: this._textArea.selectionStart,
-      to: this._textArea.selectionEnd,
+      from: this._textElement.selectionStart ?? 0,
+      to: this._textElement.selectionEnd ?? 0,
     };
   }
 

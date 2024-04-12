@@ -6,11 +6,11 @@
 
 # textarea-selection-bounds
 
-Easily get the bounds of a selection in a textarea.
+Easily get the bounds of a selection in a textarea or text input element.
 
 ## Motivation 💥
 
-**textarea-selection-bounds** is a simple library that allows you to get the bounds of a selection in a textarea. It is written in TypeScript and has no dependencies. It is perfect to overlay content on top of a textarea that should follow the selection.
+**textarea-selection-bounds** is a simple library that allows you to get the bounds of a selection in a textarea or text input element. It is written in TypeScript and has no dependencies. It is perfect to overlay content on top of a textarea or text input element that should follow the selection.
 
 `top` & `left` are the coordinates of the top-left corner of the selection. They are relative to the window. `width` & `height` are the dimensions of the selection.
 
@@ -20,7 +20,7 @@ See the [Codepen](https://codepen.io/Janik-Schumacher/pen/gOyGxed) for a live de
 
 ## Features 🔥
 
-✅ Get top, left, width, and height of a selection in a textarea.
+✅ Get top, left, width, and height of a selection in a textarea or text input element.
 
 ✅ Zero dependencies.
 
