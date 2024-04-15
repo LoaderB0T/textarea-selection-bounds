@@ -40,8 +40,6 @@ type Cache = {
   amountOfScrollX: number;
   textElementTop: number;
   textElementLeft: number;
-  windowScrollY: number;
-  windowScrollX: number;
 };
 
 export class TextareaSelectionBounds {
@@ -58,8 +56,6 @@ export class TextareaSelectionBounds {
     amountOfScrollX: 0,
     textElementTop: 0,
     textElementLeft: 0,
-    windowScrollY: 0,
-    windowScrollX: 0,
   };
   // @internal
   private _computedTextElementStyle: CSSStyleDeclaration;
@@ -107,9 +103,7 @@ export class TextareaSelectionBounds {
       this._cache.amountOfScrollY === newCache.amountOfScrollY &&
       this._cache.amountOfScrollX === newCache.amountOfScrollX &&
       this._cache.textElementTop === newCache.textElementTop &&
-      this._cache.textElementLeft === newCache.textElementLeft &&
-      this._cache.windowScrollY === newCache.windowScrollY &&
-      this._cache.windowScrollX === newCache.windowScrollX;
+      this._cache.textElementLeft === newCache.textElementLeft;
 
     if (!isEqual) {
       this._cache.textContent = newCache.textContent;
@@ -118,8 +112,6 @@ export class TextareaSelectionBounds {
       this._cache.amountOfScrollX = newCache.amountOfScrollX;
       this._cache.textElementTop = newCache.textElementTop;
       this._cache.textElementLeft = newCache.textElementLeft;
-      this._cache.windowScrollY = newCache.windowScrollY;
-      this._cache.windowScrollX = newCache.windowScrollX;
     }
 
     return isEqual;
@@ -155,8 +147,6 @@ export class TextareaSelectionBounds {
     const textElementRect = this._textElement.getBoundingClientRect();
     const textElementTop = textElementRect.top;
     const textElementLeft = textElementRect.left;
-    const windowScrollY = window.scrollY;
-    const windowScrollX = window.scrollX;
 
     if (
       this.compareCache({
@@ -166,8 +156,6 @@ export class TextareaSelectionBounds {
         amountOfScrollX,
         textElementTop: textElementTop,
         textElementLeft: textElementLeft,
-        windowScrollY,
-        windowScrollX,
       })
     ) {
       return this._cache.result;
@@ -202,8 +190,8 @@ export class TextareaSelectionBounds {
 
     const spanSelectionRect = spanSelection.getBoundingClientRect();
 
-    let top = spanSelectionRect.top - divTop - amountOfScrollY + textElementTop + windowScrollY;
-    let left = spanSelectionRect.left - divLeft - amountOfScrollX + textElementLeft + windowScrollX;
+    let top = spanSelectionRect.top - divTop - amountOfScrollY + textElementTop;
+    let left = spanSelectionRect.left - divLeft - amountOfScrollX + textElementLeft;
     let height = spanSelectionRect.height;
     let width = spanSelectionRect.width;
 
@@ -211,44 +199,32 @@ export class TextareaSelectionBounds {
       const limitingElements = this._options.limits.map(limit =>
         limit === 'self' ? this._textElement : limit
       );
-      const smallestBounds = limitingElements.reduce(
-        (acc, limit) => {
-          const limitRect = limit.getBoundingClientRect();
-          const limitTop = limitRect.top;
-          const limitLeft = limitRect.left;
-          const limitHeight = limit.clientHeight;
-          const limitWidth = limit.clientWidth;
 
-          const newTop = Math.min(Math.max(top, limitTop), limitTop + limitHeight);
-          const newLeft = Math.min(Math.max(left, limitLeft), limitLeft + limitWidth);
+      limitingElements.forEach(el => {
+        const elRect = el.getBoundingClientRect();
+        const elTop = elRect.top;
+        const elLeft = elRect.left;
+        const elHeight = elRect.height;
+        const elWidth = elRect.width;
 
-          const deltaTop = newTop - top;
-          const deltaLeft = newLeft - left;
+        if (top < elTop) {
+          height -= elTop - top;
+          top = elTop;
+        }
 
-          height -= deltaTop;
-          width -= deltaLeft;
+        if (left < elLeft) {
+          width -= elLeft - left;
+          left = elLeft;
+        }
 
-          const maxHeight = Math.min(limitTop + limitHeight - newTop, height);
-          const maxWidth = Math.min(limitLeft + limitWidth - newLeft, width);
+        if (top + height > elTop + elHeight) {
+          height = elTop + elHeight - top;
+        }
 
-          top = newTop;
-          left = newLeft;
-          height = maxHeight;
-          width = maxWidth;
-
-          // ensure that the height and width are at least 1
-          height = Math.max(1, height);
-          width = Math.max(1, width);
-
-          return { top, left, height, width };
-        },
-        { top, left, height, width }
-      );
-
-      top = smallestBounds.top;
-      left = smallestBounds.left;
-      height = smallestBounds.height;
-      width = smallestBounds.width;
+        if (left + width > elLeft + elWidth) {
+          width = elLeft + elWidth - left;
+        }
+      });
     }
 
     if (!this._options.debug) {
@@ -280,7 +256,7 @@ export class TextareaSelectionBounds {
       console.log(res);
       const marker = document.createElement('div');
       marker.id = debugMarkerId;
-      marker.style.position = 'absolute';
+      marker.style.position = 'fixed';
       marker.style.pointerEvents = 'none';
       marker.style.backgroundColor = '#ff00424d';
       marker.style.top = `${res.top}px`;
