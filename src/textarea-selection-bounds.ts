@@ -235,6 +235,12 @@ export class TextareaSelectionBounds {
         if (left + width > elLeft + elWidth) {
           width = elLeft + elWidth - left;
         }
+        if (height < 0) {
+          height = 0;
+        }
+        if (width < 0) {
+          width = 0;
+        }
       });
     }
 
