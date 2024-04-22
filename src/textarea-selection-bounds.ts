@@ -58,6 +58,8 @@ export class TextareaSelectionBounds {
     textElementLeft: 0,
   };
   // @internal
+  private readonly _limitCache: (HTMLElement | null)[] = [];
+  // @internal
   private _computedTextElementStyle: CSSStyleDeclaration;
 
   /**
@@ -196,9 +198,18 @@ export class TextareaSelectionBounds {
     let width = spanSelectionRect.width;
 
     if (this._options.limits.length) {
-      const limitingElements = this._options.limits.map(limit =>
-        limit === 'self' ? this._textElement : limit
-      );
+      const limitingElements = this._options.limits
+        .map((limit, i) => {
+          if (limit === 'self') {
+            return this._textElement;
+          } else if (typeof limit === 'function') {
+            this._limitCache[i] ??= limit();
+            return this._limitCache[i];
+          } else {
+            return limit;
+          }
+        })
+        .filter(el => el !== null) as HTMLElement[];
 
       limitingElements.forEach(el => {
         const elRect = el.getBoundingClientRect();
@@ -279,6 +290,7 @@ export class TextareaSelectionBounds {
    */
   public deleteStyleCache(): void {
     this._computedTextElementStyle = getComputedStyle(this._textElement);
+    this._limitCache.length = 0;
   }
 
   /**

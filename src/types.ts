@@ -27,8 +27,9 @@ export type Options = {
   debug: boolean;
   /**
    * Limits the bounds to itself and/or the specified HTMLElements. The textElement must overlap with the limits!
+   * In case of a function, the first time the function returns a non-null value, it will be used as the limit (cached).
    */
-  limits: ('self' | HTMLElement)[];
+  limits: ('self' | HTMLElement | (() => HTMLElement | null))[];
 };
 
 export type CSSStyleDeclarationWritableKeys = Exclude<
