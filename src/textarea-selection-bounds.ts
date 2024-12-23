@@ -42,6 +42,8 @@ type Cache = {
   textElementLeft: number;
 };
 
+const supportedElements = ['textarea', 'text', 'search', 'url', 'tel', 'password'];
+
 export class TextareaSelectionBounds {
   // @internal
   private readonly _textElement: TextElement;
@@ -69,12 +71,18 @@ export class TextareaSelectionBounds {
    */
   constructor(textElement: TextElement, options?: Partial<Options>) {
     this._textElement = textElement;
-    this._computedTextElementStyle = getComputedStyle(this._textElement);
+    const inpuType =
+      textElement.tagName === 'INPUT' ? textElement.getAttribute('type') || 'text' : 'textarea';
+    if (!supportedElements.includes(inpuType?.toLowerCase())) {
+      console.error('The textElement element must be of the following types', supportedElements);
+      throw new Error('Invalid element type');
+    }
     this._options = {
       relevantStyles: options?.relevantStyles ?? [],
       debug: options?.debug ?? false,
       limits: options?.limits ?? [],
     };
+    this._computedTextElementStyle = this.window.getComputedStyle(this._textElement);
   }
 
   // @internal
@@ -94,6 +102,14 @@ export class TextareaSelectionBounds {
       ...this.getAllKeysStartingWith(defaultRelevantStylesDashCase),
       ...this._options.relevantStyles.map(s => s.replace(/[A-Z]/g, '-$&').toLowerCase()),
     ] as CSSStyleDeclarationWritableKeys[];
+  }
+
+  private get window(): Window {
+    const win = this._textElement.ownerDocument.defaultView;
+    if (!win) {
+      throw new Error('The textarea element must be in a document with a default view.');
+    }
+    return win;
   }
 
   // @internal
@@ -129,7 +145,7 @@ export class TextareaSelectionBounds {
 
     const div = document.createElement('div');
     div.id = measureDivId;
-    const copyStyle = getComputedStyle(this._textElement);
+    const copyStyle = this.window.getComputedStyle(this._textElement);
     for (const prop of this.relevantStyles) {
       div.style[prop] = copyStyle[prop] as any;
     }
@@ -143,7 +159,7 @@ export class TextareaSelectionBounds {
     }
 
     const textContentUntilSelection = this._textElement.value.substring(0, actualFrom);
-    const textContentSelection = this._textElement.value.substring(actualFrom, actualTo);
+    const textContentSelection = this._textElement.value.substring(actualFrom, actualTo) || '​';
     const textContentAfterSelection = this._textElement.value.substring(actualTo);
 
     const textElementRect = this._textElement.getBoundingClientRect();
@@ -295,7 +311,7 @@ export class TextareaSelectionBounds {
    * Deletes the style cache. Call this is the textElement style has changed (e.g. font size, padding, etc.)
    */
   public deleteStyleCache(): void {
-    this._computedTextElementStyle = getComputedStyle(this._textElement);
+    this._computedTextElementStyle = this.window.getComputedStyle(this._textElement);
     this._limitCache.length = 0;
   }
 
