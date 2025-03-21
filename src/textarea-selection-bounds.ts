@@ -22,6 +22,8 @@ type PartialWritableCSSStyleDeclaration = GetAllPossibleBeginningsOfString<
   ''
 >;
 
+const ZERO_WIDTH_SPACE = '\u200B';
+
 const defaultRelevantStyles: PartialWritableCSSStyleDeclaration[] = [
   'font',
   'lineHeight',
@@ -159,7 +161,7 @@ export class TextareaSelectionBounds {
     }
 
     const textContentUntilSelection = this._textElement.value.substring(0, actualFrom);
-    const textContentSelection = this._textElement.value.substring(actualFrom, actualTo) || '​';
+    const textContentSelection = this._textElement.value.substring(actualFrom, actualTo);
     const textContentAfterSelection = this._textElement.value.substring(actualTo);
 
     const textElementRect = this._textElement.getBoundingClientRect();
@@ -182,7 +184,7 @@ export class TextareaSelectionBounds {
     const spanUntilSelection = document.createElement('span');
     spanUntilSelection.textContent = textContentUntilSelection;
     const spanSelection = document.createElement('span');
-    spanSelection.textContent = textContentSelection;
+    spanSelection.textContent = textContentSelection || ZERO_WIDTH_SPACE;
     if (this._options.debug) {
       spanSelection.style.backgroundColor = 'rgba(0, 0, 255, 0.3)';
     }
