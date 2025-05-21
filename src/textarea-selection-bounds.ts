@@ -334,15 +334,21 @@ export class TextareaSelectionBounds {
 
   /**
    * Returns the bounds of the selection.
-   * @param selection The selection to get the bounds for. If not provided, the current selection will be used.
+   * @param selection The selection to get the bounds for. If not provided, the current selection will be used. If 'full' is provided, it is assumed that all text is selected.
    * @returns The bounds of the selection, a changed flag, and the selected text.
    * @example
    * const bounds = textareaSelectionBounds.getBounds();
    * console.log(bounds);
    * // { top: 10, left: 20, width: 30, height: 40, changed: true, text: 'Hello' }
    */
-  public getBounds(selection?: TextSelection): SelectionBounds {
+  public getBounds(selection?: TextSelection | 'full'): SelectionBounds {
     const useSelection = selection ?? this.getCurrentSelection();
+    if (useSelection === 'full') {
+      return this.getBoundsForSelection({
+        from: 0,
+        to: this._textElement.value.length,
+      });
+    }
     return this.getBoundsForSelection(useSelection);
   }
 
