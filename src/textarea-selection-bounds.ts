@@ -42,6 +42,8 @@ type Cache = {
   amountOfScrollX: number;
   textElementTop: number;
   textElementLeft: number;
+  textElementWidth: number;
+  textElementHeight: number;
 };
 
 const supportedElements = ['textarea', 'text', 'search', 'url', 'tel', 'password'];
@@ -60,6 +62,8 @@ export class TextareaSelectionBounds {
     amountOfScrollX: 0,
     textElementTop: 0,
     textElementLeft: 0,
+    textElementWidth: 0,
+    textElementHeight: 0,
   };
   // @internal
   private readonly _limitCache: (HTMLElement | null)[] = [];
@@ -123,7 +127,9 @@ export class TextareaSelectionBounds {
       this._cache.amountOfScrollY === newCache.amountOfScrollY &&
       this._cache.amountOfScrollX === newCache.amountOfScrollX &&
       this._cache.textElementTop === newCache.textElementTop &&
-      this._cache.textElementLeft === newCache.textElementLeft;
+      this._cache.textElementLeft === newCache.textElementLeft &&
+      this._cache.textElementWidth === newCache.textElementWidth &&
+      this._cache.textElementHeight === newCache.textElementHeight;
 
     if (!isEqual) {
       this._cache.textContent = newCache.textContent;
@@ -132,6 +138,8 @@ export class TextareaSelectionBounds {
       this._cache.amountOfScrollX = newCache.amountOfScrollX;
       this._cache.textElementTop = newCache.textElementTop;
       this._cache.textElementLeft = newCache.textElementLeft;
+      this._cache.textElementWidth = newCache.textElementWidth;
+      this._cache.textElementHeight = newCache.textElementHeight;
     }
 
     return isEqual;
@@ -152,7 +160,15 @@ export class TextareaSelectionBounds {
       div.style[prop] = copyStyle[prop] as any;
     }
     div.style.whiteSpace = 'pre-wrap';
-    div.style.width = `${this._textElement.scrollWidth}px`;
+    const widthForMeasureDiv =
+      this._textElement.offsetWidth ===
+      this._textElement.scrollWidth +
+        this.pxToNumber(copyStyle.borderRightWidth) +
+        this.pxToNumber(copyStyle.borderLeftWidth)
+        ? this._textElement.offsetWidth
+        : this._textElement.scrollWidth;
+
+    div.style.width = `${widthForMeasureDiv}px`;
     div.style.height = 'auto';
     div.style.boxSizing = 'border-box';
     if (!this._options.debug) {
@@ -176,6 +192,8 @@ export class TextareaSelectionBounds {
         amountOfScrollX,
         textElementTop: textElementTop,
         textElementLeft: textElementLeft,
+        textElementWidth: this._textElement.offsetWidth,
+        textElementHeight: this._textElement.offsetHeight,
       })
     ) {
       return this._cache.result;
@@ -184,7 +202,8 @@ export class TextareaSelectionBounds {
     const spanUntilSelection = document.createElement('span');
     spanUntilSelection.textContent = textContentUntilSelection;
     const spanSelection = document.createElement('span');
-    spanSelection.textContent = textContentSelection || ZERO_WIDTH_SPACE;
+
+    spanSelection.textContent = textContentSelection + ZERO_WIDTH_SPACE;
     if (this._options.debug) {
       spanSelection.style.backgroundColor = 'rgba(0, 0, 255, 0.3)';
     }
@@ -212,8 +231,8 @@ export class TextareaSelectionBounds {
 
     let top = spanSelectionRect.top - divTop - amountOfScrollY + textElementTop;
     let left = spanSelectionRect.left - divLeft - amountOfScrollX + textElementLeft;
-    let height = spanSelectionRect.height;
-    let width = spanSelectionRect.width;
+    let height = spanSelection.offsetHeight;
+    let width = spanSelection.offsetWidth;
 
     if (this._options.limits.length) {
       const limitingElements = this._options.limits
@@ -360,5 +379,9 @@ export class TextareaSelectionBounds {
   public getBoundingClientRect(selection?: TextSelection): DOMRect {
     const bounds = this.getBounds(selection);
     return new DOMRect(bounds.left, bounds.top, bounds.width, bounds.height);
+  }
+
+  private pxToNumber(px: string): number {
+    return parseFloat(px.replace('px', ''));
   }
 }
