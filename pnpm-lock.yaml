@@ -7,13 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      cpy-cli:
-        specifier: ^5.0.0
-        version: 5.0.0
-      http-server:
-        specifier: ^14.1.1
-        version: 14.1.1
     devDependencies:
       '@awdware/eslint-config-base':
         specifier: ^2.1.1
@@ -33,6 +26,9 @@ importers:
       '@types/node':
         specifier: ^22.13.11
         version: 22.15.3
+      cpy-cli:
+        specifier: ^5.0.0
+        version: 5.0.0
       eslint:
         specifier: ^9.22.0
         version: 9.26.0
@@ -42,6 +38,9 @@ importers:
       eslint-plugin-unused-imports:
         specifier: ^4.1.4
         version: 4.1.4(@typescript-eslint/eslint-plugin@8.31.1(@typescript-eslint/parser@8.31.1(eslint@9.26.0)(typescript@5.8.3))(eslint@9.26.0)(typescript@5.8.3))(eslint@9.26.0)
+      http-server:
+        specifier: ^14.1.1
+        version: 14.1.1
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@22.15.3)(ts-node@10.9.2(@types/node@22.15.3)(typescript@5.8.3))
