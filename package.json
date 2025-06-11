@@ -1,6 +1,6 @@
 {
   "name": "textarea-selection-bounds",
-  "version": "4.2.1",
+  "version": "4.2.2",
   "description": "A handy package to get the bounds of the current text selection in a textarea element",
   "main": "./lib/index.js",
   "exports": {
