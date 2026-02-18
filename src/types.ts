@@ -30,6 +30,10 @@ export type Options = {
    * In case of a function, the first time the function returns a non-null value, it will be used as the limit (cached).
    */
   limits: ('self' | HTMLElement | (() => HTMLElement | null))[];
+  /**
+   * A key to use for caching the computed styles. If provided, the computed styles will be cached and reused for elements with the same key.
+   */
+  styleComputationCacheKey?: string;
 };
 
 export type CSSStyleDeclarationWritableKeys = Exclude<

@@ -69,6 +69,13 @@ export class TextareaSelectionBounds {
   private readonly _limitCache: (HTMLElement | null)[] = [];
   // @internal
   private _computedTextElementStyle: CSSStyleDeclaration;
+  // @internal
+  private readonly _styleComputationCache: Record<string, CSSStyleDeclaration> = {};
+  // @internal
+  private readonly relevantStyles: CSSStyleDeclarationWritableKeys[];
+
+  private _scrollTop = 0;
+  private _scrollLeft = 0;
 
   /**
    * Creates a new instance of TextareaSelectionBounds.
@@ -88,7 +95,65 @@ export class TextareaSelectionBounds {
       debug: options?.debug ?? false,
       limits: options?.limits ?? [],
     };
-    this._computedTextElementStyle = this.window.getComputedStyle(this._textElement);
+    this._computedTextElementStyle = this.getComputedStyle();
+    this.relevantStyles = this.calculateRelevantStyles();
+
+    const eventListener = () => {
+      this._scrollTop = this._textElement.scrollTop;
+      this._scrollLeft = this._textElement.scrollLeft;
+    };
+
+    // Listen for scroll events on the text element to update scroll position in cache
+    this._textElement.addEventListener('scroll', eventListener);
+    // remove event listener on removal of the textelement to prevent memory leaks
+    const observer = new MutationObserver(mutations => {
+      mutations.forEach(mutation => {
+        mutation.removedNodes.forEach(removedNode => {
+          if (removedNode === this._textElement) {
+            this._textElement.removeEventListener('scroll', eventListener);
+            observer.disconnect();
+          }
+        });
+      });
+    });
+    observer.observe(this._textElement.parentNode ?? document.body, { childList: true });
+  }
+
+  // @internal
+  private calculateRelevantStyles(): CSSStyleDeclarationWritableKeys[] {
+    // Cache dash-case conversion for defaultRelevantStyles
+    const dashCaseCache: Record<string, string> = {};
+    const toDashCase = (s: string) => {
+      if (dashCaseCache[s]) {
+        return dashCaseCache[s];
+      }
+      return (dashCaseCache[s] = s.replace(/[A-Z]/g, '-$&').toLowerCase());
+    };
+
+    // Convert defaultRelevantStyles and user relevantStyles to dash-case only once
+    const defaultRelevantStylesDashCase = defaultRelevantStyles.map(toDashCase);
+    const userRelevantStylesDashCase = this._options.relevantStyles.map(toDashCase);
+
+    // Use a Set to avoid duplicates
+    const relevantSet = new Set<string>();
+
+    // Add all keys starting with default relevant styles
+    for (const key of this.getAllKeysStartingWith(defaultRelevantStylesDashCase)) {
+      relevantSet.add(key);
+    }
+    // Add all keys starting with user relevant styles
+    for (const key of this.getAllKeysStartingWith(userRelevantStylesDashCase)) {
+      relevantSet.add(key);
+    }
+
+    // Add user relevant styles directly if present in computed style
+    for (const style of userRelevantStylesDashCase) {
+      if (style in this._computedTextElementStyle) {
+        relevantSet.add(style);
+      }
+    }
+
+    return Array.from(relevantSet) as CSSStyleDeclarationWritableKeys[];
   }
 
   // @internal
@@ -96,18 +161,6 @@ export class TextareaSelectionBounds {
     return Array.from(this._computedTextElementStyle).filter(key =>
       startingWith.some(start => key.startsWith(start))
     ) as CSSStyleDeclarationWritableKeys[];
-  }
-
-  // @internal
-  private get relevantStyles(): CSSStyleDeclarationWritableKeys[] {
-    const defaultRelevantStylesDashCase = defaultRelevantStyles.map(s =>
-      s.replace(/[A-Z]/g, '-$&').toLowerCase()
-    );
-
-    return [
-      ...this.getAllKeysStartingWith(defaultRelevantStylesDashCase),
-      ...this._options.relevantStyles.map(s => s.replace(/[A-Z]/g, '-$&').toLowerCase()),
-    ] as CSSStyleDeclarationWritableKeys[];
   }
 
   private get window(): Window {
@@ -145,17 +198,25 @@ export class TextareaSelectionBounds {
     return isEqual;
   }
 
+  private getComputedStyle(): CSSStyleDeclaration {
+    return this._options.styleComputationCacheKey
+      ? (this._styleComputationCache[this._options.styleComputationCacheKey] ??=
+          this.window.getComputedStyle(this._textElement))
+      : this.window.getComputedStyle(this._textElement);
+  }
+
   // @internal
   private getBoundsForSelection(selection: TextSelection): SelectionBounds {
     const actualFrom = Math.min(selection.from, selection.to);
     const actualTo = Math.max(selection.from, selection.to);
 
-    const amountOfScrollY = this._textElement.scrollTop;
-    const amountOfScrollX = this._textElement.scrollLeft;
+    const amountOfScrollY = this._scrollTop;
+    const amountOfScrollX = this._scrollLeft;
 
     const div = document.createElement('div');
     div.id = measureDivId;
-    const copyStyle = this.window.getComputedStyle(this._textElement);
+    const copyStyle = this.getComputedStyle();
+
     for (const prop of this.relevantStyles) {
       div.style[prop] = copyStyle[prop] as any;
     }
@@ -332,7 +393,7 @@ export class TextareaSelectionBounds {
    * Deletes the style cache. Call this is the textElement style has changed (e.g. font size, padding, etc.)
    */
   public deleteStyleCache(): void {
-    this._computedTextElementStyle = this.window.getComputedStyle(this._textElement);
+    this._computedTextElementStyle = this.getComputedStyle();
     this._limitCache.length = 0;
   }
 
