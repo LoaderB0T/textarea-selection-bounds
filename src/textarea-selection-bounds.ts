@@ -76,6 +76,9 @@ export class TextareaSelectionBounds {
 
   private _scrollTop = 0;
   private _scrollLeft = 0;
+  private _disposed = false;
+  private _scrollEventListener: (() => void) | null = null;
+  private _mutationObserver: MutationObserver | null = null;
 
   /**
    * Creates a new instance of TextareaSelectionBounds.
@@ -98,25 +101,49 @@ export class TextareaSelectionBounds {
     this._computedTextElementStyle = this.getComputedStyle();
     this.relevantStyles = this.calculateRelevantStyles();
 
-    const eventListener = () => {
+    this._scrollEventListener = () => {
       this._scrollTop = this._textElement.scrollTop;
       this._scrollLeft = this._textElement.scrollLeft;
     };
 
     // Listen for scroll events on the text element to update scroll position in cache
-    this._textElement.addEventListener('scroll', eventListener);
+    this._textElement.addEventListener('scroll', this._scrollEventListener);
     // remove event listener on removal of the textelement to prevent memory leaks
-    const observer = new MutationObserver(mutations => {
+    this._mutationObserver = new MutationObserver(mutations => {
       mutations.forEach(mutation => {
         mutation.removedNodes.forEach(removedNode => {
           if (removedNode === this._textElement) {
-            this._textElement.removeEventListener('scroll', eventListener);
-            observer.disconnect();
+            this.dispose();
           }
         });
       });
     });
-    observer.observe(this._textElement.parentNode ?? document.body, { childList: true });
+    this._mutationObserver.observe(this._textElement.parentNode ?? document.body, {
+      childList: true,
+    });
+  }
+
+  /**
+   * Disposes the instance by removing event listeners, disconnecting the MutationObserver,
+   * and clearing references to DOM elements and options. Call this when the text element is
+   * being destroyed to prevent memory leaks.
+   *
+   * After calling dispose(), the instance should not be used anymore.
+   */
+  public dispose(): void {
+    if (this._disposed) {
+      return;
+    }
+    this._disposed = true;
+    if (this._scrollEventListener) {
+      this._textElement.removeEventListener('scroll', this._scrollEventListener);
+      this._scrollEventListener = null;
+    }
+    this._mutationObserver?.disconnect();
+    this._mutationObserver = null;
+    this._options.limits = [];
+    this._options.relevantStyles = [];
+    this._limitCache.length = 0;
   }
 
   // @internal
